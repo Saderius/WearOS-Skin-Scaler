@@ -1,0 +1,5 @@
+{
+  "name": "Wear OS Skin Scaler",
+  "description": "Scales Wear OS emulator skins to a new display size.",
+  "requestFramePermissions": []
+}
