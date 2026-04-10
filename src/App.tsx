@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { Upload, Download, Watch, Image as ImageIcon, FileText, CheckCircle2, Circle, Square, Zap } from 'lucide-react';
+import { Upload, Download, Watch, Image as ImageIcon, FileText, CheckCircle2, Circle, Square, Zap, ChevronDown, Moon, Sun, Monitor } from 'lucide-react';
 
 export default function App() {
   const [watchType, setWatchType] = useState<'circle' | 'square'>('circle');
@@ -11,6 +11,36 @@ export default function App() {
   const [maskFile, setMaskFile] = useState<File | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [layoutPreview, setLayoutPreview] = useState('');
+  const [isLayoutVisible, setIsLayoutVisible] = useState(false);
+  const [theme, setTheme] = useState<'auto' | 'light' | 'dark'>('auto');
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const applyTheme = () => {
+      if (theme === 'dark') {
+        root.classList.add('dark');
+      } else if (theme === 'light') {
+        root.classList.remove('dark');
+      } else {
+        if (mediaQuery.matches) {
+          root.classList.add('dark');
+        } else {
+          root.classList.remove('dark');
+        }
+      }
+    };
+
+    applyTheme();
+
+    const handleChange = () => {
+      if (theme === 'auto') applyTheme();
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [theme]);
 
   // Calculate layout dimensions based on target display size
   const calculateDimensions = (size: number, type: 'circle' | 'square') => {
@@ -213,36 +243,58 @@ layouts {
     }
   };
 
+  const dims = calculateDimensions(targetSize || 720, watchType);
+  const hasMask = isTurboMode ? watchType === 'circle' : !!maskFile;
+
+  const Highlight = ({ children }: { children: React.ReactNode }) => (
+    <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-1 py-0.5 rounded font-bold">{children}</span>
+  );
+
   return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-900 font-sans p-6 md:p-12">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans p-6 md:p-12 transition-colors duration-300">
+      <div className="max-w-md mx-auto space-y-8">
         
-        <header className="flex items-center space-x-4 pb-6 border-b border-neutral-200">
-          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm">
-            <Watch className="text-white w-6 h-6" />
+        <header className="flex items-center justify-between pb-6 border-b border-neutral-200 dark:border-neutral-800 transition-colors duration-300">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm">
+              <Watch className="text-white w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">Wear OS Skin Scaler</h1>
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1">Resize emulator skins automatically</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Wear OS Skin Scaler</h1>
-            <p className="text-neutral-500 text-sm mt-1">Resize emulator skins automatically</p>
-          </div>
+          <button 
+            onClick={() => {
+              if (theme === 'auto') setTheme('light');
+              else if (theme === 'light') setTheme('dark');
+              else setTheme('auto');
+            }} 
+            className="p-2 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors shadow-sm flex items-center justify-center w-10 h-10"
+            title={`Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}`}
+          >
+            {theme === 'auto' && <span className="material-icons text-[20px] leading-none">&#xe1ab;</span>}
+            {theme === 'light' && <Sun className="w-5 h-5" />}
+            {theme === 'dark' && <Moon className="w-5 h-5" />}
+          </button>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-8">
           
-          {/* Left Column: Controls */}
+          {/* Main App Body: Controls */}
           <div className="space-y-6">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-neutral-200 space-y-6">
+            <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 space-y-6 transition-colors duration-300">
               
               {/* Watch Type Picker */}
               <div className="flex justify-center">
-                <div className="flex items-center space-x-2 p-1 bg-neutral-100 rounded-xl w-fit">
+                <div className="flex items-center space-x-2 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-xl w-fit transition-colors duration-300">
                   <button
                     onClick={() => setWatchType('circle')}
                     title="Round"
                     className={`p-3 rounded-lg transition-all ${
                       watchType === 'circle'
-                        ? 'bg-white text-neutral-900 shadow-sm'
-                        : 'text-neutral-500 hover:text-neutral-700'
+                        ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-sm'
+                        : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'
                     }`}
                   >
                     <Circle className="w-5 h-5" />
@@ -252,8 +304,8 @@ layouts {
                     title="Square"
                     className={`p-3 rounded-lg transition-all ${
                       watchType === 'square'
-                        ? 'bg-white text-neutral-900 shadow-sm'
-                        : 'text-neutral-500 hover:text-neutral-700'
+                        ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-sm'
+                        : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'
                     }`}
                   >
                     <Square className="w-5 h-5" />
@@ -262,25 +314,37 @@ layouts {
               </div>
 
               {/* Turbo Mode Toggle */}
-              <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-100 rounded-xl">
+              <label className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-colors duration-300 ${
+                isTurboMode 
+                  ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800/50' 
+                  : 'bg-neutral-50 dark:bg-neutral-800/30 border-neutral-200 dark:border-neutral-700'
+              }`}>
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Zap className="w-5 h-5 text-blue-600" />
+                  <div className={`p-2 rounded-lg transition-colors duration-300 ${
+                    isTurboMode ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-neutral-200 dark:bg-neutral-800'
+                  }`}>
+                    <Zap className={`w-5 h-5 transition-colors duration-300 ${
+                      isTurboMode ? 'text-blue-600 dark:text-blue-400' : 'text-neutral-500 dark:text-neutral-400'
+                    }`} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-blue-900">Turbo Mode</h3>
-                    <p className="text-xs text-blue-700">Automatically use built-in high-quality skin files</p>
+                    <h3 className={`text-sm font-medium transition-colors duration-300 ${
+                      isTurboMode ? 'text-blue-900 dark:text-blue-100' : 'text-neutral-700 dark:text-neutral-300'
+                    }`}>Turbo Mode</h3>
+                    <p className={`text-xs transition-colors duration-300 ${
+                      isTurboMode ? 'text-blue-700 dark:text-blue-300' : 'text-neutral-500 dark:text-neutral-400'
+                    }`}>Automatically use built-in high-quality skin files</p>
                   </div>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
+                <div className="relative inline-flex items-center">
                   <input type="checkbox" className="sr-only peer" checked={isTurboMode} onChange={(e) => setIsTurboMode(e.target.checked)} />
-                  <div className="w-11 h-6 bg-blue-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-              </div>
+                  <div className="w-11 h-6 bg-neutral-200 dark:bg-neutral-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-neutral-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500"></div>
+                </div>
+              </label>
 
               {/* Target Size Input */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-neutral-700">
+                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   Target Display Size (px)
                 </label>
                 <div className="relative">
@@ -288,27 +352,22 @@ layouts {
                     type="number"
                     value={targetSize}
                     onChange={(e) => setTargetSize(Number(e.target.value))}
-                    className="w-full pl-4 pr-12 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+                    className="w-full pl-4 pr-12 py-3 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-all outline-none text-neutral-900 dark:text-white"
                     placeholder="720"
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-medium">
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500 text-sm font-medium">
                     px
                   </span>
                 </div>
-                <p className="text-xs text-neutral-500 mt-2">
-                  {watchType === 'circle' 
-                    ? "The original reference display size is 480px. The bezel and corner radius scale proportionally."
-                    : "The original reference display width is 402px. The height and bezel scale proportionally."}
-                </p>
               </div>
 
               {!isTurboMode && (
                 <>
-                  <hr className="border-neutral-100" />
+                  <hr className="border-neutral-100 dark:border-neutral-800 transition-colors duration-300" />
 
                   {/* File Uploads */}
                   <div className="space-y-4">
-                    <label className="block text-sm font-medium text-neutral-700">
+                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                       Original Images
                     </label>
                     
@@ -320,14 +379,14 @@ layouts {
                         onChange={(e) => setBezelFile(e.target.files?.[0] || null)}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                       />
-                      <div className={`flex items-center justify-between p-4 rounded-xl border-2 border-dashed transition-colors ${bezelFile ? 'border-green-500 bg-green-50' : 'border-neutral-300 bg-neutral-50 group-hover:border-blue-400 group-hover:bg-blue-50'}`}>
+                      <div className={`flex items-center justify-between p-4 rounded-xl border-2 border-dashed transition-colors ${bezelFile ? 'border-green-500 dark:border-green-500/70 bg-green-50 dark:bg-green-900/20' : 'border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50 group-hover:border-blue-400 dark:group-hover:border-blue-500 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20'}`}>
                         <div className="flex items-center space-x-3">
-                          <ImageIcon className={`w-5 h-5 ${bezelFile ? 'text-green-600' : 'text-neutral-400'}`} />
-                          <span className={`text-sm font-medium ${bezelFile ? 'text-green-700' : 'text-neutral-600'}`}>
+                          <ImageIcon className={`w-5 h-5 ${bezelFile ? 'text-green-600 dark:text-green-400' : 'text-neutral-400 dark:text-neutral-500'}`} />
+                          <span className={`text-sm font-medium ${bezelFile ? 'text-green-700 dark:text-green-400' : 'text-neutral-600 dark:text-neutral-400'}`}>
                             {bezelFile ? bezelFile.name : 'Upload device_bezel.png'}
                           </span>
                         </div>
-                        {bezelFile ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Upload className="w-4 h-4 text-neutral-400" />}
+                        {bezelFile ? <CheckCircle2 className="w-5 h-5 text-green-500 dark:text-green-400" /> : <Upload className="w-4 h-4 text-neutral-400 dark:text-neutral-500" />}
                       </div>
                     </div>
 
@@ -339,14 +398,14 @@ layouts {
                         onChange={(e) => setMaskFile(e.target.files?.[0] || null)}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                       />
-                      <div className={`flex items-center justify-between p-4 rounded-xl border-2 border-dashed transition-colors ${maskFile ? 'border-green-500 bg-green-50' : 'border-neutral-300 bg-neutral-50 group-hover:border-blue-400 group-hover:bg-blue-50'}`}>
+                      <div className={`flex items-center justify-between p-4 rounded-xl border-2 border-dashed transition-colors ${maskFile ? 'border-green-500 dark:border-green-500/70 bg-green-50 dark:bg-green-900/20' : 'border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50 group-hover:border-blue-400 dark:group-hover:border-blue-500 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20'}`}>
                         <div className="flex items-center space-x-3">
-                          <ImageIcon className={`w-5 h-5 ${maskFile ? 'text-green-600' : 'text-neutral-400'}`} />
-                          <span className={`text-sm font-medium ${maskFile ? 'text-green-700' : 'text-neutral-600'}`}>
+                          <ImageIcon className={`w-5 h-5 ${maskFile ? 'text-green-600 dark:text-green-400' : 'text-neutral-400 dark:text-neutral-500'}`} />
+                          <span className={`text-sm font-medium ${maskFile ? 'text-green-700 dark:text-green-400' : 'text-neutral-600 dark:text-neutral-400'}`}>
                             {maskFile ? maskFile.name : 'Upload device_mask.png (Optional, but recommended)'}
                           </span>
                         </div>
-                        {maskFile ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Upload className="w-4 h-4 text-neutral-400" />}
+                        {maskFile ? <CheckCircle2 className="w-5 h-5 text-green-500 dark:text-green-400" /> : <Upload className="w-4 h-4 text-neutral-400 dark:text-neutral-500" />}
                       </div>
                     </div>
                   </div>
@@ -357,7 +416,7 @@ layouts {
               <button
                 onClick={handleGenerate}
                 disabled={(!isTurboMode && !bezelFile) || !targetSize || isGenerating}
-                className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-neutral-200 disabled:text-neutral-400 text-white rounded-xl font-medium transition-all flex items-center justify-center space-x-2 shadow-sm disabled:shadow-none"
+                className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 disabled:bg-neutral-200 dark:disabled:bg-neutral-800 disabled:text-neutral-400 dark:disabled:text-neutral-600 text-white rounded-xl font-medium transition-all flex items-center justify-center space-x-2 shadow-sm disabled:shadow-none"
               >
                 {isGenerating ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -371,16 +430,74 @@ layouts {
             </div>
           </div>
 
-          {/* Right Column: Preview */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 text-neutral-700">
-              <FileText className="w-5 h-5" />
-              <h2 className="text-sm font-medium">Generated layout file</h2>
-            </div>
-            <div className="bg-neutral-900 rounded-2xl p-6 shadow-sm overflow-hidden flex flex-col h-[500px]">
-              <pre className="text-green-400 font-mono text-xs leading-relaxed overflow-auto flex-1 custom-scrollbar">
-                {layoutPreview}
-              </pre>
+          {/* Bottom Section: Preview */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden h-fit transition-colors duration-300">
+            <button 
+              onClick={() => setIsLayoutVisible(!isLayoutVisible)}
+              className="w-full p-6 flex items-center justify-between bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg transition-colors duration-300">
+                  <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-100">Generated Layout File</h2>
+              </div>
+              <ChevronDown className={`w-5 h-5 text-neutral-400 transition-transform duration-300 ${isLayoutVisible ? 'rotate-180' : ''}`} />
+            </button>
+            <div className={`grid transition-all duration-300 ease-in-out ${isLayoutVisible ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+              <div className="overflow-hidden">
+                <div className="p-6 bg-neutral-50 dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800 flex flex-col transition-colors duration-300">
+                  <pre className="text-neutral-600 dark:text-neutral-400 font-mono text-xs leading-relaxed whitespace-pre-wrap">
+{`parts {
+    portrait {
+        background {
+            image   device_bezel.png
+        }`}
+{hasMask && `
+        foreground {
+            mask    device_mask.png
+        }`}
+{`
+    }
+
+    device {
+        display {
+            width   `}<Highlight>{dims.displayWidth}</Highlight>{`
+            height  `}<Highlight>{dims.displayHeight}</Highlight>{`
+            x       0
+            y       0`}
+{watchType === 'circle' && (
+  <>
+{`
+            corner_radius `}<Highlight>{dims.cornerRadius}</Highlight>
+  </>
+)}
+{`
+        }
+    }
+}
+
+layouts {
+    portrait {
+        width     `}<Highlight>{dims.layoutWidth}</Highlight>{`
+        height    `}<Highlight>{dims.layoutHeight}</Highlight>{`
+
+        part1 {
+            name    portrait
+            x       `}{dims.bezelX === 0 ? '0' : <Highlight>{dims.bezelX}</Highlight>}{`
+            y       `}{dims.bezelY === 0 ? '0' : <Highlight>{dims.bezelY}</Highlight>}{`
+        }
+
+        part2 {
+            name    device
+            x       `}<Highlight>{dims.displayX}</Highlight>{`
+            y       `}<Highlight>{dims.displayY}</Highlight>{`
+        }
+    }
+}`}
+                  </pre>
+                </div>
+              </div>
             </div>
           </div>
 
