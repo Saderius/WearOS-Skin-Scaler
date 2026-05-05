@@ -251,7 +251,7 @@ layouts {
   );
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans p-6 md:p-12 transition-colors duration-300">
+    <main className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans p-6 md:p-12 transition-colors duration-300">
       <div className="max-w-md mx-auto space-y-8">
         
         <header className="flex items-center justify-between pb-6 border-b border-neutral-200 dark:border-neutral-800 transition-colors duration-300">
@@ -260,8 +260,8 @@ layouts {
               <Watch className="text-white w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">Wear OS Skin Scaler</h1>
-              <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1">Resize emulator skins automatically</p>
+              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">Android Emulator Skins Resizer</h1>
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1">Scale Wear OS and Android emulator skins automatically</p>
             </div>
           </div>
           <button 
@@ -501,8 +501,28 @@ layouts {
             </div>
           </div>
 
+          {/* SEO Content: How it Works & FAQ for AI Crawlers */}
+          <section className="pt-8 pb-4 space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">About Android Emulator Skins Resizer</h2>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                When developing wear OS or testing normal apps, you often need the perfect Android emulator skin size for Android Studio. Instead of calculating layout offsets, layout coordinates, or resizing bezier image masks manually, this free tool handles everything.
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 border-b border-neutral-200 dark:border-neutral-800 pb-2">How do I resize an emulator skin?</h3>
+              <ol className="text-sm text-neutral-600 dark:text-neutral-400 space-y-3 list-decimal list-inside">
+                <li><strong className="text-neutral-800 dark:text-neutral-300">Choose your watch type:</strong> Select either a circular Wear OS emulator skin or a square smartwatch skin layout.</li>
+                <li><strong className="text-neutral-800 dark:text-neutral-300">Pick Target Size:</strong> Enter the target width in pixels (e.g., 720). The resizer will instantly calculate new image sizes and <code>layout</code> offset numbers.</li>
+                <li><strong className="text-neutral-800 dark:text-neutral-300">Upload or Turbo Mode:</strong> You can upload your own <code>device_bezel.png</code> or use the built-in high definition defaults (Turbo Mode).</li>
+                <li><strong className="text-neutral-800 dark:text-neutral-300">Export:</strong> Click Generate to instantly get a valid `.zip` package format ready to be placed in the Android Studio skins directory.</li>
+              </ol>
+            </div>
+          </section>
+
         </div>
       </div>
-    </div>
+    </main>
   );
 }
