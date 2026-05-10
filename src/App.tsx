@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { Upload, Download, Watch, Image as ImageIcon, FileText, CheckCircle2, Circle, Square, Zap, ChevronDown, Moon, Sun, Monitor } from 'lucide-react';
+import { Upload, Download, Watch, Image as ImageIcon, FileText, CheckCircle2, Circle, Square, Zap, ChevronDown, Moon, Sun, Monitor, Github, X, ExternalLink } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+
+const KofiIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.724c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267.023 11.966-.049c2.438-.042 2.678-2.593 2.678-2.593l.01-2.128s4.625.201 6.118-4.949c.594-2.316-.25-4.226-.5-5.048zm-4.351 5.928c-.802.005-1.502-.006-1.502-.006l-.01 2.441s-.11 1.258-1.42 1.258C13.43 18.57 6.442 18.583 6.442 18.583c-1.31 0-1.42-1.258-1.42-1.258V6.012c0-1.31 1.05-1.419 1.05-1.419h7.491s1.05.109 1.05 1.419c0 1.309 0 5.485 0 5.485s.104 1.378 1.421 1.378h.744c.48 0 1.139-.026 1.139-.026v1.944s-.104 2.128-2.128 2.128zm3.08-1.402c-.36 1.136-1.042 1.583-1.042 1.583l.006-3.825s.682-.447 1.042 1.583c.36 2.03.36 2.03.36 2.03z"/>
+  </svg>
+);
 
 export default function App() {
   const [watchType, setWatchType] = useState<'circle' | 'square'>('circle');
@@ -13,6 +20,7 @@ export default function App() {
   const [layoutPreview, setLayoutPreview] = useState('');
   const [isLayoutVisible, setIsLayoutVisible] = useState(false);
   const [theme, setTheme] = useState<'auto' | 'light' | 'dark'>('auto');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -235,6 +243,7 @@ layouts {
 
       const content = await zip.generateAsync({ type: 'blob' });
       saveAs(content, `wearos_skin_${dims.displayWidth}x${dims.displayHeight}.zip`);
+      setShowSuccessModal(true);
     } catch (error) {
       console.error('Error generating skin:', error);
       alert('An error occurred while generating the skin.');
@@ -260,7 +269,18 @@ layouts {
               <Watch className="text-white w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">Android Emulator Skins Resizer</h1>
+              <div className="flex items-center space-x-2">
+                <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">Android Emulator Skins Resizer</h1>
+                <a 
+                  href="https://github.com/Saderius/WearOS-Skin-Scaler" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  title="View on GitHub"
+                >
+                  <Github className="w-5 h-5" />
+                </a>
+              </div>
               <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1">Scale Wear OS and Android emulator skins automatically</p>
             </div>
           </div>
@@ -523,6 +543,77 @@ layouts {
 
         </div>
       </div>
+
+      <AnimatePresence>
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSuccessModal(false)}
+              className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-sm bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800"
+            >
+              <div className="p-1 bg-blue-600 h-1.5 full" />
+              <div className="p-8 space-y-6 text-center">
+                <div className="flex justify-center">
+                  <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center ring-8 ring-green-50 dark:ring-green-900/10">
+                    <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-neutral-900 dark:text-white">Skin Generated!</h3>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                    Your custom emulator skin has been ready and downloaded. Enjoy your testing!
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 pt-2">
+                  <a 
+                    href="https://ko-fi.com/saderius" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center space-x-3 py-3 px-4 bg-[#29abe0] hover:bg-[#228db9] text-white rounded-xl font-semibold transition-colors shadow-sm"
+                  >
+                    <KofiIcon className="w-5 h-5 fill-white" />
+                    <span>Support on Ko-fi</span>
+                  </a>
+                  
+                  <a 
+                    href="https://github.com/Saderius/WearOS-Skin-Scaler" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center space-x-3 py-3 px-4 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white rounded-xl font-semibold transition-colors border border-neutral-200 dark:border-neutral-700 shadow-sm"
+                  >
+                    <Github className="w-5 h-5" />
+                    <span>View on GitHub</span>
+                  </a>
+                </div>
+
+                <button 
+                  onClick={() => setShowSuccessModal(false)}
+                  className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 text-sm font-medium transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+              <button 
+                onClick={() => setShowSuccessModal(false)}
+                className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
