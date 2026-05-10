@@ -269,18 +269,7 @@ layouts {
               <Watch className="text-white w-6 h-6" />
             </div>
             <div>
-              <div className="flex items-center space-x-2">
-                <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">Android Emulator Skins Resizer</h1>
-                <a 
-                  href="https://github.com/Saderius/WearOS-Skin-Scaler" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="p-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  title="View on GitHub"
-                >
-                  <Github className="w-5 h-5" />
-                </a>
-              </div>
+              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">Android Emulator Skins Resizer</h1>
               <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1">Scale Wear OS and Android emulator skins automatically</p>
             </div>
           </div>
